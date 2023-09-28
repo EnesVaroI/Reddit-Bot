@@ -1,0 +1,13 @@
+{
+    "name": "example_subreddit",
+    "rules": [
+        "No personal attacks",
+        "No spamming",
+        "No hate speech"
+    ],
+    "keywords": [
+        "example",
+        "relevant",
+        "topic"
+    ]
+}
