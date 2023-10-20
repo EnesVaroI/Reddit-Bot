@@ -1,4 +1,3 @@
-import os
 from auth import authenticate
 from bot_logic import run_bot
 
