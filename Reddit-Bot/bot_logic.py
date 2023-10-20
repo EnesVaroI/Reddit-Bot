@@ -2,40 +2,36 @@ import praw
 import time
 from post_archiving import archive_document
 from json_handler import save_json, load_json, format_json
-from post_management import (
-    send_messages,
-    process_blacklisted_posts,
-    find_post,
-    process_active_posts,
-    process_inactive_posts
-)
+from post_management import ManagePosts
 
 def run_bot(reddit):
     subreddit = reddit.subreddit("plantclinic")
     post_tracker = load_json('post_data.json')
 
+    manage = ManagePosts(reddit, post_tracker)
+  
     while True:
         for submission in subreddit.new(limit=10):
             try:
-                send_messages(submission, reddit, post_tracker)
+                manage.send_messages(submission)
 
             except praw.exceptions.RedditAPIException as e:
-                process_blacklisted_posts(e, submission)
+                manage.process_blacklisted_posts(e, submission)
               
         save_json('post_data.json', post_tracker)
         
         for message in reddit.inbox.all(limit=10):
-            post_id = find_post(message, post_tracker)
+            post_id = manage.find_post(message)
           
             if post_id is not None:
-                process_active_posts(post_id, reddit, message, post_tracker)
+                manage.process_active_posts(post_id, message)
 
         save_json('post_data.json', post_tracker)
     
         archived_logs = []
       
         for post_id, post_data in post_tracker.items():
-            process_inactive_posts(reddit, post_id, post_data)
+            manage.process_inactive_posts(post_id, post_data)
 
             archive_document(post_id, post_data, archived_logs)
 
